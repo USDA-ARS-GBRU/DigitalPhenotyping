@@ -1,0 +1,11 @@
+trait,format,defaultValue,minimum,maximum,details,categories,isVisible,realPosition
+"			|CO_334:0000008","numeric","","","","","","TRUE","1"
+"			|CO_334:0000009","numeric","","","","","","TRUE","2"
+"			|CO_334:0000010","numeric","","","","","","TRUE","3"
+"			|CO_334:0000011","numeric","","","","","","TRUE","4"
+"			|CO_334:0000012","numeric","","","","","","TRUE","5"
+"			|CO_334:0000013","numeric","","","","","","TRUE","6"
+"			|CO_334:0000014","numeric","","","","","","TRUE","7"
+"HI			|CO_334:0000015","numeric","","","","","","TRUE","8"
+"			|CO_334:0000016","numeric","","","","","","TRUE","9"
+"			|CO_334:0000017","numeric","","","","","","TRUE","10"

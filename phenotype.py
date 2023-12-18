@@ -6,6 +6,7 @@ from nltk.corpus import wordnet
 from nltk.tokenize import word_tokenize, regexp_tokenize
 import nltk
 import pandas as pd
+from spacy.matcher import PhraseMatcher
 nltk.download('averaged_perceptron_tagger')
 nltk.download('wordnet')
 nltk.download('omw-1.4')
@@ -49,11 +50,34 @@ features = {
     'brix': ['high', 'moderate', 'low'],
     'acid': ['high', 'moderate', 'low'],
     'fruit flavor': ['best', 'above average', 'average', 'below average'],
-    'trifoliate aftertaste': ['present', 'not present'],
-    'market class': ['grapefruit-like', 'orange-like', 'mandarin-like'],
+    'trifoliate aftertaste': ['trifoliate aftertaste', 'trifolate aftertaste', 'present', 'not present'],
+    'market class': ['grapefruit like', 'orange like', 'mandarin like'],
     'recheck': ['recheck', 'yes', 'no']
 }
 
+features_okra = {
+    'stem': ['red green'],
+    'flowering': ['not flowering', 'one pod']
+}
+
+def extract_features_matcher(text):
+    matcher = PhraseMatcher(nlp.vocab, attr='LOWER')
+    for characteristic, synonyms in characteristics.items():
+        patterns = [nlp.make_doc(syn.lower()) for syn in synonyms]
+        matcher.add(characteristic, patterns)
+    doc = nlp(text)
+
+    # Initialize an empty dictionary to store the extracted characteristics
+    fruit_characteristics = {}
+
+    # Find all matches in the doc and add them to the dictionary
+    for match_id, start, end in matcher(doc):
+        characteristic = nlp.vocab.strings[match_id]
+        value = doc[start:end].text
+        fruit_characteristics[characteristic] = value
+
+    # Return the dictionary of extracted characteristics
+    return pd.Series(fruit_characteristics)
 
 def extract_features(text):
     # Use NER to extract named entities
@@ -67,12 +91,12 @@ def extract_features(text):
 
     # Use keyword matching to extract features
     extracted_features = {}
-    for feature, keywords in features.items():
+    for feature, keywords in features_okra.items():
         for keyword in keywords:
             pattern = r'\b{}\b'.format(keyword)
             matches = re.findall(pattern, text, re.IGNORECASE)
             if matches:
-                extracted_features[feature] = matches[0]
+                extracted_features[feature] = set(matches)
 
         # Check if the feature was mentioned as a named entity or adjective
         if feature not in extracted_features:
@@ -83,7 +107,8 @@ def extract_features(text):
                 extracted_features[feature] = list(
                     adjectives.intersection(keywords))[0]
 
-    return pd.Series(extracted_features)
+    # return pd.Series(extracted_features)
+    return extracted_features
 
 
 def context_phenotype_text(text, context_size=0):
@@ -249,11 +274,16 @@ def phenotype_text(text):
         return None
 
 
-sample = "thick peel Harvest clean fruit flesh juicy fruit size is medium average fruit flavor with moderate brix moderate acid High seed number trifoliate aftertaste come back and recheck"
-df = pd.read_csv("test_log_with_transcript.csv")
-processed_df = pd.concat(
-    [df, df['transcript'].apply(extract_features)], axis=1)
-processed_df.to_csv("phenotype_characteristics.csv", index=False)
+# sample = "thick peel Harvest clean fruit flesh juicy fruit size is medium average fruit flavor with moderate brix moderate acid High seed number trifoliate aftertaste come back and recheck"
+sample = "new plant red green stem one pod new plant one pods new plant not flowering new plant not flowering new plant not flowering new plant one pod new plant not flowering"
+# df = pd.read_csv("test_log_with_transcript.csv")
+# processed_df = pd.concat(
+#     [df, df['transcript'].apply(extract_features)], axis=1)
+# processed_df.to_csv("phenotype_characteristics.csv", index=False)
+# print(extract_features(sample))
+for part in sample.split("new plant"):
+    print(part)
+    print(extract_features(part))
 # print("=========BASE===========")
 # print(phenotype_text(sample))
 # print("=========REGEX===========")

@@ -1,0 +1,106 @@
+fetch("https://demo.breedbase.org/ajax/phenotype/upload_store/spreadsheet", {
+  "headers": {
+    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+    "accept-language": "en-US,en-IN;q=0.9,en;q=0.8",
+    "cache-control": "max-age=0",
+    "content-type": "multipart/form-data; boundary=----WebKitFormBoundaryM8sEwCIKlkZwQSPC",
+    "sec-ch-ua": "\"Google Chrome\";v=\"117\", \"Not;A=Brand\";v=\"8\", \"Chromium\";v=\"117\"",
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "sec-fetch-dest": "iframe",
+    "sec-fetch-mode": "navigate",
+    "sec-fetch-site": "same-origin",
+    "sec-fetch-user": "?1",
+    "upgrade-insecure-requests": "1",
+    "cookie": "ph_foZTeM1AW8dh5WkaofxTYiInBhS4XzTzRqLs50kVziw_posthog=%7B%22distinct_id%22%3A%221894bc90a0f647-0ba003413cb301-26031d51-1bcab9-1894bc90a10713%22%2C%22%24device_id%22%3A%221894bc90a0f647-0ba003413cb301-26031d51-1bcab9-1894bc90a10713%22%2C%22%24user_state%22%3A%22anonymous%22%2C%22extension_version%22%3A%221.5.5%22%2C%22%24session_recording_enabled_server_side%22%3Afalse%2C%22%24autocapture_disabled_server_side%22%3Afalse%2C%22%24active_feature_flags%22%3A%5B%5D%2C%22%24enabled_feature_flags%22%3A%7B%22enable-session-recording%22%3Afalse%2C%22sourcing%22%3Afalse%2C%22only-company-edit%22%3Afalse%2C%22job-lists%22%3Afalse%7D%2C%22%24feature_flag_payloads%22%3A%7B%7D%7D; cookies_approved=1; user_prefs=; sgn_session_id=tspdvpfmpaoeoebywdcgyaeldjjxqwrghrwqgfdscblueaxnenturfbmrhqmbsiqoxkwzbu; amp_6e403e=1H0921RCWJuUS8JJqASiWq...1hbtgn5r2.1hbth0h28.0.0.0",
+    "Referer": "https://demo.breedbase.org/breeders/trial/167?format=",
+    "Referrer-Policy": "strict-origin-when-cross-origin"
+  },
+  "body": "------WebKitFormBoundaryM8sEwCIKlkZwQSPC\r\nContent-Disposition: form-data; name=\"upload_spreadsheet_phenotype_file_format\"\r\n\r\ndetailed\r\n------WebKitFormBoundaryM8sEwCIKlkZwQSPC\r\nContent-Disposition: form-data; name=\"upload_spreadsheet_phenotype_data_level\"\r\n\r\nplots\r\n------WebKitFormBoundaryM8sEwCIKlkZwQSPC\r\nContent-Disposition: form-data; name=\"upload_spreadsheet_phenotype_file_input\"; filename=\"fieldbook sample upload.xlsx\"\r\nContent-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\r\n\r\n\r\n------WebKitFormBoundaryM8sEwCIKlkZwQSPC--\r\n",
+  "method": "POST"
+});
+
+fetch("https://demo.breedbase.org/ajax/phenotype/upload_verify/spreadsheet", {
+  "headers": {
+    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+    "accept-language": "en-US,en-IN;q=0.9,en;q=0.8",
+    "cache-control": "max-age=0",
+    "content-type": "multipart/form-data; boundary=----WebKitFormBoundarywoqFaUo7EyOBd1R9",
+    "sec-ch-ua": "\"Google Chrome\";v=\"117\", \"Not;A=Brand\";v=\"8\", \"Chromium\";v=\"117\"",
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "sec-fetch-dest": "iframe",
+    "sec-fetch-mode": "navigate",
+    "sec-fetch-site": "same-origin",
+    "sec-fetch-user": "?1",
+    "upgrade-insecure-requests": "1",
+    "cookie": "ph_foZTeM1AW8dh5WkaofxTYiInBhS4XzTzRqLs50kVziw_posthog=%7B%22distinct_id%22%3A%221894bc90a0f647-0ba003413cb301-26031d51-1bcab9-1894bc90a10713%22%2C%22%24device_id%22%3A%221894bc90a0f647-0ba003413cb301-26031d51-1bcab9-1894bc90a10713%22%2C%22%24user_state%22%3A%22anonymous%22%2C%22extension_version%22%3A%221.5.5%22%2C%22%24session_recording_enabled_server_side%22%3Afalse%2C%22%24autocapture_disabled_server_side%22%3Afalse%2C%22%24active_feature_flags%22%3A%5B%5D%2C%22%24enabled_feature_flags%22%3A%7B%22enable-session-recording%22%3Afalse%2C%22sourcing%22%3Afalse%2C%22only-company-edit%22%3Afalse%2C%22job-lists%22%3Afalse%7D%2C%22%24feature_flag_payloads%22%3A%7B%7D%7D; cookies_approved=1; user_prefs=; sgn_session_id=tspdvpfmpaoeoebywdcgyaeldjjxqwrghrwqgfdscblueaxnenturfbmrhqmbsiqoxkwzbu; amp_6e403e=1H0921RCWJuUS8JJqASiWq...1hbtgn5r2.1hbth0h28.0.0.0",
+    "Referer": "https://demo.breedbase.org/breeders/trial/167?format=",
+    "Referrer-Policy": "strict-origin-when-cross-origin"
+  },
+  "body": "------WebKitFormBoundarywoqFaUo7EyOBd1R9\r\nContent-Disposition: form-data; name=\"upload_spreadsheet_phenotype_file_format\"\r\n\r\ndetailed\r\n------WebKitFormBoundarywoqFaUo7EyOBd1R9\r\nContent-Disposition: form-data; name=\"upload_spreadsheet_phenotype_data_level\"\r\n\r\nplots\r\n------WebKitFormBoundarywoqFaUo7EyOBd1R9\r\nContent-Disposition: form-data; name=\"upload_spreadsheet_phenotype_file_input\"; filename=\"fieldbook sample upload.xlsx\"\r\nContent-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\r\n\r\n\r\n------WebKitFormBoundarywoqFaUo7EyOBd1R9--\r\n",
+  "method": "POST"
+});
+
+fetch("https://demo.breedbase.org/ajax/html/select/traits?name=retrieve_assayed_trial_traits_select&id=retrieve_assayed_trial_traits_select&trial_ids=167&size=20px&multiple=1", {
+  "headers": {
+    "accept": "*/*",
+    "accept-language": "en-US,en-IN;q=0.9,en;q=0.8",
+    "sec-ch-ua": "\"Google Chrome\";v=\"117\", \"Not;A=Brand\";v=\"8\", \"Chromium\";v=\"117\"",
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "same-origin",
+    "x-requested-with": "XMLHttpRequest",
+    "cookie": "ph_foZTeM1AW8dh5WkaofxTYiInBhS4XzTzRqLs50kVziw_posthog=%7B%22distinct_id%22%3A%221894bc90a0f647-0ba003413cb301-26031d51-1bcab9-1894bc90a10713%22%2C%22%24device_id%22%3A%221894bc90a0f647-0ba003413cb301-26031d51-1bcab9-1894bc90a10713%22%2C%22%24user_state%22%3A%22anonymous%22%2C%22extension_version%22%3A%221.5.5%22%2C%22%24session_recording_enabled_server_side%22%3Afalse%2C%22%24autocapture_disabled_server_side%22%3Afalse%2C%22%24active_feature_flags%22%3A%5B%5D%2C%22%24enabled_feature_flags%22%3A%7B%22enable-session-recording%22%3Afalse%2C%22sourcing%22%3Afalse%2C%22only-company-edit%22%3Afalse%2C%22job-lists%22%3Afalse%7D%2C%22%24feature_flag_payloads%22%3A%7B%7D%7D; cookies_approved=1; user_prefs=; sgn_session_id=tspdvpfmpaoeoebywdcgyaeldjjxqwrghrwqgfdscblueaxnenturfbmrhqmbsiqoxkwzbu; amp_6e403e=1H0921RCWJuUS8JJqASiWq...1hbtgn5r2.1hbti00v0.0.0.0",
+    "Referer": "https://demo.breedbase.org/breeders/trial/167?format=",
+    "Referrer-Policy": "strict-origin-when-cross-origin"
+  },
+  "body": null,
+  "method": "GET"
+});
+
+fetch("https://demo.breedbase.org/ajax/breeders/trial/167/delete_single_trait", {
+  "headers": {
+    "accept": "application/json, text/javascript, */*; q=0.01",
+    "accept-language": "en-US,en-IN;q=0.9,en;q=0.8",
+    "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+    "sec-ch-ua": "\"Google Chrome\";v=\"117\", \"Not;A=Brand\";v=\"8\", \"Chromium\";v=\"117\"",
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "same-origin",
+    "x-requested-with": "XMLHttpRequest",
+    "cookie": "ph_foZTeM1AW8dh5WkaofxTYiInBhS4XzTzRqLs50kVziw_posthog=%7B%22distinct_id%22%3A%221894bc90a0f647-0ba003413cb301-26031d51-1bcab9-1894bc90a10713%22%2C%22%24device_id%22%3A%221894bc90a0f647-0ba003413cb301-26031d51-1bcab9-1894bc90a10713%22%2C%22%24user_state%22%3A%22anonymous%22%2C%22extension_version%22%3A%221.5.5%22%2C%22%24session_recording_enabled_server_side%22%3Afalse%2C%22%24autocapture_disabled_server_side%22%3Afalse%2C%22%24active_feature_flags%22%3A%5B%5D%2C%22%24enabled_feature_flags%22%3A%7B%22enable-session-recording%22%3Afalse%2C%22sourcing%22%3Afalse%2C%22only-company-edit%22%3Afalse%2C%22job-lists%22%3Afalse%7D%2C%22%24feature_flag_payloads%22%3A%7B%7D%7D; cookies_approved=1; user_prefs=; sgn_session_id=tspdvpfmpaoeoebywdcgyaeldjjxqwrghrwqgfdscblueaxnenturfbmrhqmbsiqoxkwzbu; amp_6e403e=1H0921RCWJuUS8JJqASiWq...1hbtgn5r2.1hbti00v0.0.0.0",
+    "Referer": "https://demo.breedbase.org/breeders/trial/167?format=",
+    "Referrer-Policy": "strict-origin-when-cross-origin"
+  },
+  "body": "traits_id=%5B%2270727%22%2C%2270666%22%2C%2270691%22%2C%2270773%22%2C%2270668%22%2C%2270765%22%2C%2270672%22%2C%2270706%22%2C%2270700%22%2C%2270681%22%5D",
+  "method": "POST"
+});
+
+
+
+
+fetch("https://demo.breedbase.org/ajax/breeders/trial/167/delete_single_trait", {
+  "headers": {
+    "accept": "application/json, text/javascript, */*; q=0.01",
+    "accept-language": "en-US,en-IN;q=0.9,en;q=0.8",
+    "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+    "sec-ch-ua": "\"Google Chrome\";v=\"117\", \"Not;A=Brand\";v=\"8\", \"Chromium\";v=\"117\"",
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "same-origin",
+    "x-requested-with": "XMLHttpRequest"
+  },
+  "referrer": "https://demo.breedbase.org/breeders/trial/167?",
+  "referrerPolicy": "strict-origin-when-cross-origin",
+  "body": "traits_id=%5B%2270727%22%2C%2270666%22%2C%2270691%22%2C%2270773%22%2C%2270668%22%2C%2270765%22%2C%2270672%22%2C%2270706%22%2C%2270700%22%2C%2270681%22%5D",
+  "method": "POST",
+  "mode": "cors",
+  "credentials": "include"
+});

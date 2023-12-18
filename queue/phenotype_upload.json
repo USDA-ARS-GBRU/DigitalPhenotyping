@@ -1,0 +1,21 @@
+{
+    "test123-rep1-UG120001_1062": {
+        "transcript": "red green stem one pod",
+        "features": {
+            "stem": [
+                "red green"
+            ],
+            "flowering": [
+                "one_pod"
+            ]
+        }
+    },
+    "test123-rep1-UG120001_81": {
+        "transcript": "one pods not flowering plants",
+        "features": {
+            "flowering": [
+                "not flowering"
+            ]
+        }
+    }
+}
