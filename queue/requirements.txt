@@ -1,1 +1,9 @@
-pip install XlsxWriter
+XlsxWriter
+bullmq
+requests-toolbelt
+SpeechRecognition
+spacy
+pandas
+
+# Download in CLI
+# spacy download en_core_web_sm
