@@ -14,7 +14,27 @@ features_okra = {
     'flowering': ['not flowering', 'one pod']
 }
 
-def extract_features(text):
+features_belt = {
+    'height': [],
+    'color': ["Red", "Orange", "Yellow", "Green", "Blue", "Purple", "White", "Black", "Brown", "Cyan", "Magenta", "Gray"],
+    'lodging': [],
+    'insect damage': ['true', 'false']
+}
+
+
+def build_traits(trait_df):
+    trait_features = {}
+    for _, trait_row in trait_df.iterrows():
+        if trait_row['format'] == 'categorical':
+            trait_features[trait_row['trait']
+                           ] = trait_row['categories'].split("/")
+        if trait_row['format'] == 'multicat':
+            trait_features[trait_row['trait']
+                           ] = trait_row['categories'].split("/")
+    return trait_features
+
+
+def extract_features(text, features):
     # Use NER to extract named entities
     doc = nlp(text)
     named_entities = set([ent.text.lower()
@@ -26,7 +46,7 @@ def extract_features(text):
 
     # Use keyword matching to extract features
     extracted_features = {}
-    for feature, keywords in features_okra.items():
+    for feature, keywords in features.items():
         for keyword in keywords:
             pattern = r'\b{}\b'.format(keyword)
             matches = re.findall(pattern, text, re.IGNORECASE)
@@ -45,28 +65,40 @@ def extract_features(text):
     # return pd.Series(extracted_features)
     return extracted_features
 
-def link_plants(sample, log_file):
+
+def link_plants(transcript, log_file, trait_file):
     out = {}
+
     if log_file.endswith('csv'):
-        data = pd.read_csv(log_file) 
+        data = pd.read_csv(log_file)
     elif log_file.endswith('xlsx'):
-        data = pd.read_excel(log_file) 
+        data = pd.read_excel(log_file)
     else:
-        raise Exception("Geonav Log File type not supported: "+log_file)
+        raise Exception("Geonav Log File type not supported: " + log_file)
+
+    if trait_file:
+        traits_df = pd.read_csv(trait_file)
+        features = build_traits(traits_df)
+    else:
+        features = features_okra
+
     plants = data['unique id'].unique()
-    i=0
-    for part in sample.split("new plant"):
+    i = 0
+    for part in transcript.split("new plant"):
         tmp = {}
         if part == "":
             continue
         tmp['transcript'] = part.strip()
-        tmp['features'] = extract_features(part)
+        tmp['features'] = extract_features(part, features)
         out[plants[i]] = tmp
         i += 1
     return out
+
 
 if __name__ == "__main__":
     sample = "new plant red green stem one pod new plant one pods not flowering plants not flowering"
     # log = "sample_log.csv"
     log = "sample_log.xlsx"
-    print(link_plants(sample, log))
+    # trait_file = "sample_traits.csv"
+    trait_file = None
+    print(link_plants(sample, log, trait_file))

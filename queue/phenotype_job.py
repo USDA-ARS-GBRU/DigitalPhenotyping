@@ -5,52 +5,71 @@ from requests_toolbelt import MultipartEncoder
 from transcribe import transcribe
 from phenotype import link_plants
 import xlsxwriter
+from dotenv import dotenv_values
+
+config = dotenv_values(".env.demo_breedbase")
+# config = dotenv_values(".env.sugarcane_breedbase")
 
 
-def process_job(data):
-    login_url = f"https://demo.breedbase.org/ajax/user/login?username=janedoe&password=secretpw"
-    brapi_login_url = "https://demo.breedbase.org/brapi/v2/token?username=janedoe&password=secretpw"
-    brapi_list_assections_url = f"https://demo.breedbase.org/brapi/v2/observationunits?studyDbId=167&observationUnitLevelName=plot"
-    brapi_trait_names_url = f"https://demo.breedbase.org/brapi/v2/lists/13"
-    brapi_variables_url = f"https://demo.breedbase.org/brapi/v2/variables/?pageSize=300"
-    verify_spreadsheet_url = "https://demo.breedbase.org/ajax/phenotype/upload_verify/spreadsheet"
-    upload_url = f"https://demo.breedbase.org/ajax/breeders/trial/{data['field_id']}/upload_additional_file"
-    observations_output_url = f"https://demo.breedbase.org/brapi/v2/observations"
-    file_path = "../1689174780836.wav"
+def download_file(session, url, output_dir):
+    with session.get(url, stream=True) as r:
+        r.raise_for_status()
+        filename = r.headers.get(
+            "Content-Disposition").split("filename=")[1][1:-1]
+        # file_type = filename.split(".")[-1]
+        filename = filename.replace(":", "_")
+        with open(os.path.join(output_dir, filename), 'wb') as f:
+            for chunk in r.iter_content(chunk_size=8192):
+                f.write(chunk)
+        return filename
+
+
+def process_job(job_name, data):
+    trial_number = int(data['field_id'])
+    file_path = "../1689176449522.wav"
+    job_id = job_name.split("job_")[-1]
+    TMP_DIR = f"tmp/{job_id}/worker"
+
+    os.makedirs(TMP_DIR, exist_ok=True)
+
+    login_url = f"{config['BREEDBASE_URL']}/ajax/user/login?username={config['BREEDBASE_USER']}&password={config['BREEDBASE_PASSWORD']}"
+    brapi_login_url = f"{config['BREEDBASE_URL']}/brapi/v2/token?username={config['BREEDBASE_USER']}&password={config['BREEDBASE_PASSWORD']}"
+    brapi_list_accessions_url = f"{config['BREEDBASE_URL']}/brapi/v2/observationunits?studyDbId={trial_number}&observationUnitLevelName=plot"
+    brapi_trait_names_url = f"{config['BREEDBASE_URL']}/brapi/v2/lists/13"
+    brapi_variables_url = f"{config['BREEDBASE_URL']}/brapi/v2/variables/?pageSize=1000"
+    verify_spreadsheet_url = f"{config['BREEDBASE_URL']}/ajax/phenotype/upload_verify/spreadsheet"
+    store_spreadsheet_url = f"{config['BREEDBASE_URL']}/ajax/phenotype/upload_store/spreadsheet"
+    upload_url = f"{config['BREEDBASE_URL']}/ajax/breeders/trial/{trial_number}/upload_additional_file"
+    observations_output_url = f"{config['BREEDBASE_URL']}/brapi/v2/observations"
+
     with requests.Session() as s:
         with requests.Session() as s_brapi:
             res = s.get(login_url)
             res = s_brapi.get(brapi_login_url)
             access_token = res.json().get("access_token")
 
-            with s.get(data["audio_url"], stream=True) as r:
-                r.raise_for_status()
-                filename = r.headers.get(
-                    "Content-Disposition").split("filename=")[1][1:-1]
-                with open("tmp.mp3", 'wb') as f:
-                    for chunk in r.iter_content(chunk_size=8192):
-                        f.write(chunk)
+            audio_filename = download_file(s, data["audio_url"], TMP_DIR)
+            log_filename = download_file(s, data['log_url'], TMP_DIR)
 
-            with s.get(data["log_url"], stream=True) as r:
-                r.raise_for_status()
-                log_filename = r.headers.get(
-                    "Content-Disposition").split("filename=")[1][1:-1]
-                log_filename = log_filename.replace(":", "_")
-                with open(log_filename.replace(":", "_"), 'wb') as f:
-                    for chunk in r.iter_content(chunk_size=8192):
-                        f.write(chunk)
+            try:
+                trait_filename = download_file(s, data['trait_url'], TMP_DIR)
+            except Exception:
+                trait_filename = None
+                print("Trait file download error", data['trait_url'])
 
             # Process file TODO add timestamp extraction
-            # transcript = transcribe("tmp.mp3")
+            # transcript = transcribe(os.path.join(TMP_DIR, audio_filename))
             # TODO remove after testing
-            transcript = transcribe("../1689176449522.wav")
+            transcript = transcribe(file_path)
             print(transcript)
-            plant_features: dict = link_plants(transcript, log_filename)
+            plant_features: dict = link_plants(
+                transcript, os.path.join(TMP_DIR, log_filename), None)
+            # plant_features: dict = link_plants(
+            #     transcript, os.path.join(TMP_DIR, log_filename), os.path.join(TMP_DIR, trait_filename))
             print(plant_features)
 
-
             # Get list of assessions
-            accessions = s.get(brapi_list_assections_url)
+            accessions = s.get(brapi_list_accessions_url)
             tmp = []
             tmp2 = []
             for assess in accessions.json()['result']['data']:
@@ -62,12 +81,22 @@ def process_job(data):
             print(accessions_id)
 
             # Get trait names
-            trait_names = s.get(brapi_trait_names_url)
-            trait_names = trait_names.json()['result']['data']
+            # TODO lists brapi url stopped working
+            # trait_names = s_brapi.get(brapi_trait_names_url)
+            list_url = "https://demo.breedbase.org/list/data?list_id=13"
+            traits = s.get(list_url).json()['elements']
+            print(traits)
+            trait_names = []
+            trait_ids = []
+            for trait in traits:
+                trait_ids.append(trait[0])
+                trait_names.append(trait[1])
+
+            # trait_names = trait_names.json()['result']['data']
             print(trait_names)
 
             # MODULE 1: Spreadsheet uploader
-            
+
             # # TODO (fix the linking) Cross-check linked plant features with assession list
             tmp = list(plant_features.keys())
             for i, key in enumerate(tmp):
@@ -76,7 +105,7 @@ def process_job(data):
             print(plant_features)
 
             # # Create Spreasheet TODO (fix linking)
-            with xlsxwriter.Workbook('phenotype_upload.xlsx') as workbook:
+            with xlsxwriter.Workbook(os.path.join(TMP_DIR, 'phenotype_upload.xlsx')) as workbook:
                 worksheet = workbook.add_worksheet()
 
                 worksheet.write(0, 0, "observationunit_name")
@@ -92,27 +121,30 @@ def process_job(data):
                         worksheet.write(i+1, j+1, value[0])
 
             # # Create a raw features file for extra review
-            with open("phenotype_upload.json", "w") as f:
+            with open(os.path.join(TMP_DIR, "phenotype_upload.json"), "w") as f:
                 json.dump(plant_features, f)
 
-            # # Upload json and xlsx files
-            # m = MultipartEncoder(
-            #     fields={'trial_upload_additional_file': (
-            #         "phenotype_upload.xlsx", open(file_path, 'rb'))}
-            # )
+            # Upload json and xlsx files
+            m = MultipartEncoder(
+                fields={'upload_spreadsheet_phenotype_file_input': (
+                    "phenotype_upload.xlsx", open(os.path.join(TMP_DIR, 'phenotype_upload.xlsx'), 'rb')),
+                    "upload_spreadsheet_phenotype_file_format": "simple",
+                    "upload_spreadsheet_phenotype_data_level": "plots"
+                }
+            )
 
-            # res = s.post(upload_url, data=m, headers={
-            #     'Content-Type': m.content_type})
-            # print(res, res.json())
+            res = s.post(store_spreadsheet_url, data=m, headers={
+                'Content-Type': m.content_type})
+            print(res, res.json())
 
-            # m = MultipartEncoder(
-            #     fields={'trial_upload_additional_file': (
-            #         "phenotype_upload.json", open(file_path, 'rb'))}
-            # )
+            m = MultipartEncoder(
+                fields={'trial_upload_additional_file': (
+                    "phenotype_upload.json", open(os.path.join(TMP_DIR, 'phenotype_upload.json'), 'rb'))}
+            )
 
-            # res = s.post(upload_url, data=m, headers={
-            #     'Content-Type': m.content_type})
-            # print(res, res.json())
+            res = s.post(upload_url, data=m, headers={
+                'Content-Type': m.content_type})
+            print(res, res.json())
 
             # # Cleanup for json and xlsx files
             # if not data.get("debug", False):
@@ -139,24 +171,23 @@ def process_job(data):
                     observations_output.append({
                         "observationUnitDbId": accessions_id[i],
                         "observationVariableDbId": trait_var_ids[j],
-                        # "value": value[0].replace(" ", "_")
-                        "value": 191
+                        "value": value[0].replace(" ", "_")
+                        # "value": 191
                     })
 
             print(json.dumps(observations_output))
 
             res = s_brapi.post(observations_output_url, json=observations_output, headers={
-                               "Authorization": f"Bearer {access_token}"})  
+                               "Authorization": f"Bearer {access_token}"})
             print(res, res.json())
-
 
 
 if __name__ == "__main__":
     data = {
         'audio_url': 'https://demo.breedbase.org/breeders/phenotyping/download/42',
         'log_url': 'https://demo.breedbase.org/breeders/phenotyping/download/54',
+        'trait_url': 'https://demo.breedbase.org/breeders/phenotyping/download/248',
         'field_id': 167,
-        'file_id': 42,
         'debug': False
     }
-    process_job(data)
+    process_job("job_sample", data)

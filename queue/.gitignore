@@ -1,0 +1,5 @@
+tmp/
+__pycache__/
+
+.env.demo_breedbase
+.env.sugarcane_breedbase

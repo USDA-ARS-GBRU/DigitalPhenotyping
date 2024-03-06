@@ -2,24 +2,27 @@ from bullmq import Worker
 import asyncio
 from phenotype_job import process_job
 import os
+from dotenv import dotenv_values
 
+config = dotenv_values(".env.demo_breedbase")
+# config = dotenv_values(".env.sugarcane_breedbase")
 
-async def process(job, _):
+async def processor(job, _):
     # job.data will include the data added to the queue
     print(job.data)
-    process_job(job.data)
+    process_job(job.name, job.data)
 
 
 async def main():
-    opts={"connection": {"host": 'redis-16755.c61.us-east-1-3.ec2.cloud.redislabs.com',
-                                                                        'port': 16755,
-                                                                        'username': 'tester',
-                                                                        'password': 'Mitanshu@12'}}
-    # opts={}
-    # Feel free to remove the connection parameter, if your redis runs on localhost
-    worker = Worker("myqueue", process, opts=opts)
+    opts = {"connection": {"host": config['REDIS_HOST'],
+                           'port': config['REDIS_PORT'],
+                           'username': config['REDIS_USER'],
+                           'password': config['REDIS_PASSWORD']}}
+    worker = Worker(config['REDIS_QUEUE'], processor, opts=opts)
+    worker.close()
 
     while True:
+        break
         await asyncio.sleep(1)
         if worker.drained:
             print("="*10 + "\nAll jobs completed")

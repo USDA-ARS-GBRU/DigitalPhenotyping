@@ -1,10 +1,17 @@
 import speech_recognition as sr
 from pathlib import Path
+from moviepy.editor import *
 
 r = sr.Recognizer()
 
-def transcribe(audio_file):
+
+def transcribe(audio_file, TMP_DIR="tmp/sample"):
     audio_path = Path(audio_file)
+    if audio_path.suffix == ".mp4":
+        video = AudioFileClip(audio_file)
+        audio_path = os.path.join(TMP_DIR, f"{audio_path.stem}.wav")
+        video.write_audiofile(audio_path)
+
     with sr.AudioFile(str(audio_path)) as source:
         audio = r.record(source)  # read the entire audio file
 
@@ -23,6 +30,8 @@ def transcribe(audio_file):
     except Exception as e:
         print(e)
 
+
 if __name__ == "__main__":
     audio_file = "../1689176449522.wav"
+    audio_file = "../I04.02.03_USDABeltsTest_20231214-20240306T223033Z-001\I04.02.03_USDABeltsTest_20231214\MDB-02\experiment-A-full-data.mp4"
     print(transcribe(audio_file))
