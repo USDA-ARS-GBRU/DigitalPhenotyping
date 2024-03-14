@@ -7,7 +7,8 @@ from phenotype import link_plants
 import xlsxwriter
 from dotenv import dotenv_values
 
-config = dotenv_values(".env.demo_breedbase")
+# config = dotenv_values(".env.demo_breedbase")
+config = dotenv_values(".env.citrus_breedbase")
 # config = dotenv_values(".env.sugarcane_breedbase")
 
 
@@ -28,7 +29,7 @@ def process_job(job_name, data):
     trial_number = int(data['field_id'])
     file_path = "../1689176449522.wav"
     job_id = job_name.split("job_")[-1]
-    TMP_DIR = f"tmp/{job_id}/worker"
+    TMP_DIR = f"tmp/{job_name}/worker"
 
     os.makedirs(TMP_DIR, exist_ok=True)
 
@@ -57,16 +58,23 @@ def process_job(job_name, data):
                 trait_filename = None
                 print("Trait file download error", data['trait_url'])
 
-            # Process file TODO add timestamp extraction
-            # transcript = transcribe(os.path.join(TMP_DIR, audio_filename))
+            # Process file
+            transcript = transcribe(os.path.join(
+                TMP_DIR, audio_filename), TMP_DIR=TMP_DIR, model="whisper")
             # TODO remove after testing
-            transcript = transcribe(file_path)
-            print(transcript)
+            # transcript = transcribe(file_path)
+            print(transcript['text'])
             plant_features: dict = link_plants(
-                transcript, os.path.join(TMP_DIR, log_filename), None)
+                transcript, os.path.join(TMP_DIR, log_filename), trait_file=None, type="timestamp_segment", TMP_DIR=TMP_DIR)
+            # plant_features: dict = link_plants(
+            #     transcript, os.path.join(TMP_DIR, log_filename), None)
             # plant_features: dict = link_plants(
             #     transcript, os.path.join(TMP_DIR, log_filename), os.path.join(TMP_DIR, trait_filename))
             print(plant_features)
+            # import time
+            # time.sleep(60)
+            return 
+            # exit(1)
 
             # Get list of assessions
             accessions = s.get(brapi_list_accessions_url)
@@ -133,23 +141,18 @@ def process_job(job_name, data):
                 }
             )
 
-            res = s.post(store_spreadsheet_url, data=m, headers={
-                'Content-Type': m.content_type})
-            print(res, res.json())
+            # res = s.post(store_spreadsheet_url, data=m, headers={
+            #     'Content-Type': m.content_type})
+            # print(res, res.json())
 
             m = MultipartEncoder(
                 fields={'trial_upload_additional_file': (
                     "phenotype_upload.json", open(os.path.join(TMP_DIR, 'phenotype_upload.json'), 'rb'))}
             )
 
-            res = s.post(upload_url, data=m, headers={
-                'Content-Type': m.content_type})
-            print(res, res.json())
-
-            # # Cleanup for json and xlsx files
-            # if not data.get("debug", False):
-            #     os.remove("phenotype_upload.xlsx")
-            #     os.remove("phenotype_upload.json")
+            # res = s.post(upload_url, data=m, headers={
+            #     'Content-Type': m.content_type})
+            # print(res, res.json())
 
             # MODULE 2: Brapi upload
 
@@ -177,9 +180,9 @@ def process_job(job_name, data):
 
             print(json.dumps(observations_output))
 
-            res = s_brapi.post(observations_output_url, json=observations_output, headers={
-                               "Authorization": f"Bearer {access_token}"})
-            print(res, res.json())
+            # res = s_brapi.post(observations_output_url, json=observations_output, headers={
+            #                    "Authorization": f"Bearer {access_token}"})
+            # print(res, res.json())
 
 
 if __name__ == "__main__":

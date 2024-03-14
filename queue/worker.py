@@ -4,12 +4,13 @@ from phenotype_job import process_job
 import os
 from dotenv import dotenv_values
 
-config = dotenv_values(".env.demo_breedbase")
+# config = dotenv_values(".env.demo_breedbase")
+config = dotenv_values(".env.citrus_breedbase")
 # config = dotenv_values(".env.sugarcane_breedbase")
 
 async def processor(job, _):
     # job.data will include the data added to the queue
-    print(job.data)
+    print(job.name, job.data)
     process_job(job.name, job.data)
 
 
@@ -19,10 +20,9 @@ async def main():
                            'username': config['REDIS_USER'],
                            'password': config['REDIS_PASSWORD']}}
     worker = Worker(config['REDIS_QUEUE'], processor, opts=opts)
-    worker.close()
+    # worker.close()
 
     while True:
-        break
         await asyncio.sleep(1)
         if worker.drained:
             print("="*10 + "\nAll jobs completed")
