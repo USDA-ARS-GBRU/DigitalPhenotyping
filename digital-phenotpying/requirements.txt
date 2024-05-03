@@ -1,0 +1,14 @@
+XlsxWriter
+bullmq
+requests-toolbelt
+SpeechRecognition
+spacy
+pandas
+moviepy==1.0.3
+nltk
+python-dotenv
+openai-whisper 
+whisper-timestamped
+torchaudio
+accelerate
+transformers
