@@ -7,9 +7,7 @@ from phenotype import link_plants
 import xlsxwriter
 from dotenv import dotenv_values
 
-# config = dotenv_values(".env.demo_breedbase")
-config = dotenv_values(".env.citrus_breedbase")
-# config = dotenv_values(".env.sugarcane_breedbase")
+config = dotenv_values(".env")
 
 
 def download_file(session, url, output_dir):
@@ -27,7 +25,6 @@ def download_file(session, url, output_dir):
 
 def process_job(job_name, data):
     trial_number = int(data['field_id'])
-    file_path = "../1689176449522.wav"
     job_id = job_name.split("job_")[-1]
     TMP_DIR = f"tmp/{job_name}/worker"
 
@@ -42,6 +39,8 @@ def process_job(job_name, data):
     store_spreadsheet_url = f"{config['BREEDBASE_URL']}/ajax/phenotype/upload_store/spreadsheet"
     upload_url = f"{config['BREEDBASE_URL']}/ajax/breeders/trial/{trial_number}/upload_additional_file"
     observations_output_url = f"{config['BREEDBASE_URL']}/brapi/v2/observations"
+    # Update this
+    list_url = f"{config['BREEDBASE_URL']}/list/data?list_id=13"
 
     with requests.Session() as s:
         with requests.Session() as s_brapi:
@@ -49,9 +48,9 @@ def process_job(job_name, data):
             res = s_brapi.get(brapi_login_url)
             access_token = res.json().get("access_token")
 
+            # Files are downloaded
             audio_filename = download_file(s, data["audio_url"], TMP_DIR)
             log_filename = download_file(s, data['log_url'], TMP_DIR)
-
             try:
                 trait_filename = download_file(s, data['trait_url'], TMP_DIR)
             except Exception:
@@ -59,22 +58,14 @@ def process_job(job_name, data):
                 print("Trait file download error", data['trait_url'])
 
             # Process file
+            print("Transcibing...")
             transcript = transcribe(os.path.join(
-                TMP_DIR, audio_filename), TMP_DIR=TMP_DIR, model="whisper")
-            # TODO remove after testing
-            # transcript = transcribe(file_path)
-            print(transcript['text'])
+                TMP_DIR, audio_filename), TMP_DIR=TMP_DIR)
+            print("Done.")
+            print("Extracting and linking...")
             plant_features: dict = link_plants(
                 transcript, os.path.join(TMP_DIR, log_filename), trait_file=None, type="timestamp_segment", TMP_DIR=TMP_DIR)
-            # plant_features: dict = link_plants(
-            #     transcript, os.path.join(TMP_DIR, log_filename), None)
-            # plant_features: dict = link_plants(
-            #     transcript, os.path.join(TMP_DIR, log_filename), os.path.join(TMP_DIR, trait_filename))
-            print(plant_features)
-            # import time
-            # time.sleep(60)
-            return 
-            # exit(1)
+            print("Done.")
 
             # Get list of assessions
             accessions = s.get(brapi_list_accessions_url)
@@ -85,15 +76,11 @@ def process_job(job_name, data):
                 tmp2.append(assess['observationUnitDbId'])
             accessions = tmp
             accessions_id = tmp2
-            print(accessions)
-            print(accessions_id)
 
             # Get trait names
             # TODO lists brapi url stopped working
             # trait_names = s_brapi.get(brapi_trait_names_url)
-            list_url = "https://demo.breedbase.org/list/data?list_id=13"
             traits = s.get(list_url).json()['elements']
-            print(traits)
             trait_names = []
             trait_ids = []
             for trait in traits:
@@ -101,7 +88,6 @@ def process_job(job_name, data):
                 trait_names.append(trait[1])
 
             # trait_names = trait_names.json()['result']['data']
-            print(trait_names)
 
             # MODULE 1: Spreadsheet uploader
 
@@ -110,9 +96,8 @@ def process_job(job_name, data):
             for i, key in enumerate(tmp):
                 plant_features[accessions[i]] = plant_features[key]
                 del plant_features[key]
-            print(plant_features)
 
-            # # Create Spreasheet TODO (fix linking)
+            # # Create Spreasheet 
             with xlsxwriter.Workbook(os.path.join(TMP_DIR, 'phenotype_upload.xlsx')) as workbook:
                 worksheet = workbook.add_worksheet()
 
@@ -141,8 +126,8 @@ def process_job(job_name, data):
                 }
             )
 
-            # res = s.post(store_spreadsheet_url, data=m, headers={
-            #     'Content-Type': m.content_type})
+            res = s.post(store_spreadsheet_url, data=m, headers={
+                'Content-Type': m.content_type})
             # print(res, res.json())
 
             m = MultipartEncoder(
@@ -150,39 +135,38 @@ def process_job(job_name, data):
                     "phenotype_upload.json", open(os.path.join(TMP_DIR, 'phenotype_upload.json'), 'rb'))}
             )
 
-            # res = s.post(upload_url, data=m, headers={
-            #     'Content-Type': m.content_type})
-            # print(res, res.json())
+            res = s.post(upload_url, data=m, headers={
+                'Content-Type': m.content_type})
 
-            # MODULE 2: Brapi upload
+            # # MODULE 2: Brapi upload
 
-            # Get obeservation variables(traits)
-            obs_variables = s.get(brapi_variables_url)
-            tmp = []
-            for variable in obs_variables.json()['result']['data']:
-                for trait in trait_names:
-                    if trait in variable.get('observationVariableName', ""):
-                        tmp.append(variable.get("observationVariableDbId", ""))
+            # # Get obeservation variables(traits)
+            # obs_variables = s.get(brapi_variables_url)
+            # tmp = []
+            # for variable in obs_variables.json()['result']['data']:
+            #     for trait in trait_names:
+            #         if trait in variable.get('observationVariableName', ""):
+            #             tmp.append(variable.get("observationVariableDbId", ""))
 
-            trait_var_ids = tmp
-            print(trait_var_ids)
+            # trait_var_ids = tmp
+            # print(trait_var_ids)
 
-            observations_output = []
-            for i, (assesion, value) in enumerate(plant_features.items()):
-                features = value['features']
-                for j, (trait, value) in enumerate(features.items()):
-                    observations_output.append({
-                        "observationUnitDbId": accessions_id[i],
-                        "observationVariableDbId": trait_var_ids[j],
-                        "value": value[0].replace(" ", "_")
-                        # "value": 191
-                    })
+            # observations_output = []
+            # for i, (assesion, value) in enumerate(plant_features.items()):
+            #     features = value['features']
+            #     for j, (trait, value) in enumerate(features.items()):
+            #         observations_output.append({
+            #             "observationUnitDbId": accessions_id[i],
+            #             "observationVariableDbId": trait_var_ids[j],
+            #             "value": value[0].replace(" ", "_")
+            #             # "value": 191
+            #         })
 
-            print(json.dumps(observations_output))
+            # print(json.dumps(observations_output))
 
-            # res = s_brapi.post(observations_output_url, json=observations_output, headers={
-            #                    "Authorization": f"Bearer {access_token}"})
-            # print(res, res.json())
+            # # res = s_brapi.post(observations_output_url, json=observations_output, headers={
+            # #                    "Authorization": f"Bearer {access_token}"})
+            # # print(res, res.json())
 
 
 if __name__ == "__main__":
@@ -191,6 +175,5 @@ if __name__ == "__main__":
         'log_url': 'https://demo.breedbase.org/breeders/phenotyping/download/54',
         'trait_url': 'https://demo.breedbase.org/breeders/phenotyping/download/248',
         'field_id': 167,
-        'debug': False
     }
     process_job("job_sample", data)

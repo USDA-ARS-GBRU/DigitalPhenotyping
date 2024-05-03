@@ -1,17 +1,15 @@
 from bullmq import Queue as bullQueue
 import asyncio
 import requests
-import json
-import base64
+import base64 # type: ignore
 import os
 from zipfile import ZipFile
 from requests_toolbelt import MultipartEncoder
 from dotenv import dotenv_values
 
-# config = dotenv_values(".env.demo_breedbase")
-config = dotenv_values(".env.citrus_breedbase")
+config = dotenv_values(".env")
 FIELD_ID = 290
-
+MINUTES = 30
 
 opts = {
     "connection": {
@@ -48,21 +46,14 @@ async def processor():
             res = s_brapi.get(brapi_login_url)
             access_token = res.json().get("access_token")
 
-            # # Sample case
-            # await queue.add("job_sample", {
-            #     "audio_url": "https://demo.breedbase.org/breeders/phenotyping/download/274",
-            #     "log_url": "https://demo.breedbase.org/breeders/phenotyping/download/273",
-            #     "trait_url": "https://demo.breedbase.org/breeders/phenotyping/download/272",
-            #     "field_id": 167}, {})
-
             with s_brapi.get(brapi_images_url) as res:
                 images = res.json()['result']['data']
                 for image_data in images:
                     if image_data.get('description'):
                         audio_url = ""
                         print(image_data['imageDbId'], "processing..")
-                        print(image_data['description'][:10] if image_data['description'] else image_data.get(
-                            'description'))
+
+                        # Extract files
                         imgDbId = image_data['imageDbId']
                         description = bytes(image_data['description'], 'utf-8')
                         os.makedirs("tmp", exist_ok=True)
@@ -75,9 +66,14 @@ async def processor():
                         except Exception:
                             print(f"{imgDbId} skipping")
                             continue
+
+
                         OUTPUT_ZIP_DIR = f"tmp/{imgDbId}"
+                        # DEPRECATE: This can use tmp/{imgDbId}/Output folder as output folder of files
                         if not os.path.exists(OUTPUT_ZIP_DIR + "/Output"):
                             OUTPUT_ZIP_DIR += "/Output"
+
+                        # Upload extracted file to Breedbase trial additional files section 
                         files = os.listdir(OUTPUT_ZIP_DIR)
                         audio_url = ""
                         log_url = ""
@@ -114,7 +110,7 @@ async def main():
             print("Processor awake..")
             await processor()
             print("Processor asleep..")
-            await asyncio.sleep(60*30)
+            await asyncio.sleep(60*MINUTES)
     except Exception as e:
         print(e)
         # Close when done adding jobs

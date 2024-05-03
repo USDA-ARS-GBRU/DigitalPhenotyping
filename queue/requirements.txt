@@ -4,6 +4,14 @@ requests-toolbelt
 SpeechRecognition
 spacy
 pandas
+moviepy==1.0.3
+nltk
+python-dotenv
+# openai-whisper # Will not work on windows
+# whisper-timestamped
+# torchaudio
+# accelerate
+# transformers
 
 # Download in CLI
 # spacy download en_core_web_sm

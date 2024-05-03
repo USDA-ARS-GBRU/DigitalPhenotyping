@@ -1,0 +1,7 @@
+{
+    "brix": {{data}},
+    "tree height": {{data}},
+    "scion survive": {{data}},
+    "fruit harvest trait": {{data}},
+    "number of branches": {{data}}
+}
