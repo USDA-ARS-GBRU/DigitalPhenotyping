@@ -177,6 +177,7 @@ def link_plants(input_transcript, log_file, trait_file, type="transcript", TMP_D
     if type == "transcript":
         plants = data['unique id'].unique().tolist()
         plants = [str(x) for x in plants]
+        raw_out = []
         i = 0
         for part in input_transcript.split("new plant"):
             tmp = {}
@@ -186,11 +187,15 @@ def link_plants(input_transcript, log_file, trait_file, type="transcript", TMP_D
             # tmp['features'] = extract_features(part.strip(), features)
             tmp['features'] = extract_features(
                 part.strip(), features, gemma=True)
+            raw_out.append(tmp)
             try:
                 out[plants[i]] = tmp
             except IndexError:
                 print("Error extracting features", plants, i, tmp)
             i += 1
+        # Accuracy step
+        with open(os.path.join(TMP_DIR, "ai_raw_out.json"), "w") as f:
+            json.dump(raw_out, f)
     if type == "timestamp_segment":
         plants = data['unique id'].unique()
         plants = [str(x) for x in plants]
@@ -228,7 +233,7 @@ def link_plants(input_transcript, log_file, trait_file, type="transcript", TMP_D
         end_timestamp = pd.Timestamp(
             audio_end_time).timestamp() * 1000  # Convert to milliseconds
         start_timestamp = pd.Timestamp(
-            audio_start_time,tz=).timestamp() * 1000  # Convert to milliseconds
+            audio_start_time).timestamp() * 1000  # Convert to milliseconds
         range_filtered_data = filter_data[(filter_data['UTC'] >= start_timestamp) & (
             filter_data['UTC'] <= end_timestamp)]
         print(filter_data)

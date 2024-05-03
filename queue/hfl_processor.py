@@ -13,6 +13,10 @@ VALID_JOBS = [
               'job_2440',
               'job_2441',
               ]
+# 0	miss
+# 1	detected but wrong
+# 2	correct
+# 3	other
 
 TMP_DIR = "tmp"
 DO_TRANSCRIBE = False
