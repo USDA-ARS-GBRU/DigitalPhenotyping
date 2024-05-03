@@ -75,7 +75,10 @@ async def processor():
                         except Exception:
                             print(f"{imgDbId} skipping")
                             continue
-                        files = os.listdir(f"tmp/{imgDbId}/Output")
+                        OUTPUT_ZIP_DIR = f"tmp/{imgDbId}"
+                        if not os.path.exists(OUTPUT_ZIP_DIR + "/Output"):
+                            OUTPUT_ZIP_DIR += "/Output"
+                        files = os.listdir(OUTPUT_ZIP_DIR)
                         audio_url = ""
                         log_url = ""
                         trait_url = ""
@@ -83,17 +86,17 @@ async def processor():
                             if file.endswith(".wav") or file.endswith('mp4') or file.endswith('mp3'):
                                 print("Audio", file)
                                 audio_file_id, audio_url = upload_additional_file(
-                                    s, f"tmp/{imgDbId}/Output", file)
+                                    s, OUTPUT_ZIP_DIR, file)
 
                             if file.endswith('csv'):
                                 if "log" in file:
                                     print("Geonav Log", file)
                                     log_file_id, log_url = upload_additional_file(
-                                        s, f"tmp/{imgDbId}/Output", file)
+                                        s, OUTPUT_ZIP_DIR, file)
                                 if "trait" in file:
                                     print("Trait file", file)
                                     trait_file_id, trait_url = upload_additional_file(
-                                        s, f"tmp/{imgDbId}/Output", file)
+                                        s, OUTPUT_ZIP_DIR, file)
                         job_data = {
                             'audio_url': audio_url,
                             'log_url': log_url,
