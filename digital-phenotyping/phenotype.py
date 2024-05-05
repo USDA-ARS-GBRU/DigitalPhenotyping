@@ -134,7 +134,7 @@ def link_plants(input_transcript, log_file, trait_file, type="transcript", TMP_D
                 continue
             tmp = {}
             tmp['transcript'] = segment['text'].strip()
-            tmp['features'] = extract_features(segment['text'], features)
+            tmp['features'] = extract_features(segment['text'], None)
             out[plants[i]] = tmp
             i += 1
     if type == "timestamp_with_log":

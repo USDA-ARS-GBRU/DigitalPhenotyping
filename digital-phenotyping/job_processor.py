@@ -39,7 +39,7 @@ def process_job(job_name, data):
     store_spreadsheet_url = f"{config['BREEDBASE_URL']}/ajax/phenotype/upload_store/spreadsheet"
     upload_url = f"{config['BREEDBASE_URL']}/ajax/breeders/trial/{trial_number}/upload_additional_file"
     observations_output_url = f"{config['BREEDBASE_URL']}/brapi/v2/observations"
-    # Update this
+    # Update this for manual trait names
     list_url = f"{config['BREEDBASE_URL']}/list/data?list_id=13"
 
     with requests.Session() as s:

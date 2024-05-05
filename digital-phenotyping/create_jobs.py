@@ -8,7 +8,7 @@ from requests_toolbelt import MultipartEncoder
 from dotenv import dotenv_values
 
 config = dotenv_values(".env")
-FIELD_ID = 290
+FIELD_ID = 167
 MINUTES = 30
 
 opts = {
@@ -45,6 +45,12 @@ async def processor():
             s.get(login_url)
             res = s_brapi.get(brapi_login_url)
             access_token = res.json().get("access_token")
+            # Sample Job
+            # await queue.add("job_sample", {
+            #     "audio_url": "https://demo.breedbase.org/breeders/phenotyping/download/274",
+            #     "log_url": "https://demo.breedbase.org/breeders/phenotyping/download/273",
+            #     "trait_url": "https://demo.breedbase.org/breeders/phenotyping/download/272",
+            #     "field_id": 167}, {})
 
             with s_brapi.get(brapi_images_url) as res:
                 images = res.json()['result']['data']
@@ -103,6 +109,7 @@ async def processor():
                         print(f"{imgDbId} clearing...")
                         s.get(images_delete_url +
                               images_delete_queries.format(imgDbId))
+                        
 
 async def main():
     try:
