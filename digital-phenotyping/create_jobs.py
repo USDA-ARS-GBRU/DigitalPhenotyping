@@ -46,11 +46,11 @@ async def processor():
             res = s_brapi.get(brapi_login_url)
             access_token = res.json().get("access_token")
             # Sample Job
-            # await queue.add("job_sample", {
-            #     "audio_url": "https://demo.breedbase.org/breeders/phenotyping/download/274",
-            #     "log_url": "https://demo.breedbase.org/breeders/phenotyping/download/273",
-            #     "trait_url": "https://demo.breedbase.org/breeders/phenotyping/download/272",
-            #     "field_id": 167}, {})
+            await queue.add("job_sample", {
+                "audio_url": "https://demo.breedbase.org/breeders/phenotyping/download/274",
+                "log_url": "https://demo.breedbase.org/breeders/phenotyping/download/273",
+                "trait_url": "https://demo.breedbase.org/breeders/phenotyping/download/272",
+                "field_id": 167}, {})
 
             with s_brapi.get(brapi_images_url) as res:
                 images = res.json()['result']['data']
